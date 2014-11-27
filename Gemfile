@@ -37,6 +37,8 @@ gem 'awesome_print'
 
 gem 'haml'
 
+gem 'handlebars_assets'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
