@@ -45,7 +45,7 @@ MapController.prototype = {
     var yelpId = marker.yelpId,
         business = this.parent.findByAttribute(this.parent.models.businesses, 'yelp_id', yelpId)
     var infoWindow = new google.maps.InfoWindow({
-      content: business.name + ' - ' + business.rating + ' - ' + business.yelp_review_count + ' reviews'
+      content: HandlebarsTemplates['infowindow'](business)
     })
 
     this.infoWindows.push(infoWindow)
@@ -96,23 +96,23 @@ MapController.prototype = {
       var business = businesses[i]
       this.parent.models.businesses.push(new BusinessModel(business))
     }
-    this.buildInfoWindows()
+    // this.buildInfoWindows()
     this.clearMarkers()
     this.setBusinessMarkers()
     this.setMarkerListeners()
   },
 
-  buildInfoWindows: function() {
-    var businesses = this.parent.models.businesses
-    var businessCount = businesses.length
-    for(var i=0; i<businessCount; i++) {
-      var business = businesses[i]
-      this.infoWindows.push(new google.maps.InfoWindow({
-      content: business.name,
-      yelpId: business.yelp_id
-      }))
-    }
-  },
+  // buildInfoWindows: function() {
+  //   var businesses = this.parent.models.businesses
+  //   var businessCount = businesses.length
+  //   for(var i=0; i<businessCount; i++) {
+  //     var business = businesses[i]
+  //     this.infoWindows.push(new google.maps.InfoWindow({
+  //     content: HandlebarsTemplates['infowindow'](business),
+  //     yelpId: business.yelp_id
+  //     }))
+  //   }
+  // },
 
   clearMarkers: function() {
     var markers = this.markers,
