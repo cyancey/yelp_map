@@ -10,10 +10,18 @@ ApplicationController.prototype = {
   },
 
   getCurrentLocation: function() {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      coords = {lat: position.coords.latitude, lng: position.coords.longitude}
-      this.mapController.updateMap(coords)
-    }.bind(this))
+    navigator.geolocation.getCurrentPosition(this.obtainResultsSetMap.bind(this),
+      this.locationError.bind(this),
+      {enableHighAccuracy: true})
+  },
+
+  obtainResultsSetMap: function(position) {
+    coords = {lat: position.coords.latitude, lng: position.coords.longitude}
+    this.mapController.updateMap(coords)
+  },
+
+  locationError: function() {
+    //handle location error
   },
 
   selectByAttributeId: function(array, attribute, id) {
