@@ -19,6 +19,7 @@ MapController.prototype = {
     $('#map-canvas').on('markerClicked', this.buildAndShowInfoWindow.bind(this))
     $('#map-canvas').on('markerHover', this.buildAndShowInfoWindow.bind(this))
     $('#refresh-results').on('click', this.refreshResultsByMapBounds.bind(this))
+    google.maps.event.addListener(this.map, 'click', this.closeAllInfoWindows.bind(this))
     // $('#map-canvas').on('markerLeaveHover', this.buildAndShowInfoWindow.bind(this))
   },
 
