@@ -14,5 +14,27 @@ ApplicationController.prototype = {
       coords = {lat: position.coords.latitude, lng: position.coords.longitude}
       this.mapController.updateMap(coords)
     }.bind(this))
+  },
+
+  selectByAttributeId: function(array, attribute, id) {
+    var arrayLength = array.length
+    var results = []
+    for(var i=0; i<arrayLength; i++) {
+      if (array[i][attribute] === id) {
+        results.push(array[i])
+      }
+    }
+    return results
+  },
+
+  findByAttribute: function(array, attributeType, attribute) {
+    var arrayLength = array.length
+    var results = []
+    for(var i=0; i<arrayLength; i++) {
+      if (array[i][attributeType] === attribute) {
+        results.push(array[i])
+      }
+    }
+    return results[0]
   }
 }

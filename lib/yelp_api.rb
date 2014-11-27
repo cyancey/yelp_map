@@ -25,4 +25,17 @@ module YelpAPI
     {region: results.fetch('region', nil),
      businesses: results.fetch('businesses', nil)}
   end
+
+  def search_by_bounds(args = {})
+    search_params = DEFAULT_SEARCH_OPTIONS.reject{|k,v| k==:latitude || k==:longitude || k==:location}.merge(args)
+    p search_params
+    bounding_box = {sw_latitude: search_params.delete("sw_latitude"),
+      sw_longitude: search_params.delete("sw_longitude"),
+      ne_latitude: search_params.delete("ne_latitude"),
+      ne_longitude: search_params.delete("ne_longitude")}
+    p bounding_box
+    results = JSON.parse(Yelp.client.search_by_bounding_box(bounding_box, search_params).to_json)
+    {region: results.fetch('region', nil),
+     businesses: results.fetch('businesses', nil)}
+  end
 end

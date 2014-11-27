@@ -6,6 +6,11 @@ class HomeController < ApplicationController
     results = YelpAPI.search_by_lat_lng(params)
     businesses = BusinessFactory.generate(results[:businesses])
     render json: businesses
+  end
 
+  def bounds_search
+    results = YelpAPI.search_by_bounds(params)
+    businesses = BusinessFactory.generate(results[:businesses])
+    render json: businesses
   end
 end

@@ -2,6 +2,7 @@ function MapController(applicationController) {
   this.map = null
   this.parent = applicationController
   this.markers = []
+  this.infoWindows = []
 }
 
 MapController.prototype = {
@@ -11,6 +12,68 @@ MapController.prototype = {
           zoom: 4
         };
     this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    this.setListeners()
+  },
+
+  setListeners: function() {
+    $('#map-canvas').on('markerClicked', this.buildAndShowInfoWindow.bind(this))
+    $('#map-canvas').on('markerHover', this.buildAndShowInfoWindow.bind(this))
+    $('#refresh-results').on('click', this.refreshResultsByMapBounds.bind(this))
+    // $('#map-canvas').on('markerLeaveHover', this.buildAndShowInfoWindow.bind(this))
+  },
+
+  refreshResultsByMapBounds: function() {
+    var bounds = this.map.getBounds()
+    var boundingBox = {
+      sw_latitude: bounds.getSouthWest().k,
+      sw_longitude: bounds.getSouthWest().B,
+      ne_latitude: bounds.getNorthEast().k,
+      ne_longitude: bounds.getNorthEast().B
+    }
+
+    var ajaxRequest = $.ajax({
+      url: '/bounds_search',
+      type: 'GET',
+      data: boundingBox
+    })
+
+    ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
+  },
+
+  buildAndShowInfoWindow: function(e, marker) {
+    var yelpId = marker.yelpId,
+        business = this.parent.findByAttribute(this.parent.models.businesses, 'yelp_id', yelpId)
+    var infoWindow = new google.maps.InfoWindow({
+      content: business.name + ' - ' + business.rating + ' - ' + business.yelp_review_count + ' reviews'
+    })
+
+    this.infoWindows.push(infoWindow)
+    this.closeAllInfoWindows()
+    infoWindow.open(this.map, marker)
+  },
+
+  closeAllInfoWindows: function(e, marker) {
+    var infoWindowCount = this.infoWindows.length
+    for (var i=0; i<infoWindowCount; i++) {
+      this.infoWindows[i].close()
+    }
+  },
+
+  setMarkerListeners: function() {
+    var markers = this.markers,
+        markerCount = markers.length
+    for(var i=0; i<markerCount; i++) {
+      var marker = markers[i]
+      google.maps.event.addListener(marker, 'click', function() {
+          $('#map-canvas').trigger('markerClicked', [this])
+      })
+      google.maps.event.addListener(marker, 'mouseover', function() {
+          $('#map-canvas').trigger('markerHover', [this])
+      })
+      google.maps.event.addListener(marker, 'mouseout', function() {
+          $('#map-canvas').trigger('markerLeaveHover', [this])
+      })
+    }
   },
 
   updateMap: function(coords) {
@@ -26,13 +89,28 @@ MapController.prototype = {
   },
 
   buildModelsSetMarkers: function(businesses) {
+    this.parent.models.businesses = []
     var businessCount = businesses.length
     for(var i=0; i<businessCount; i++) {
       var business = businesses[i]
       this.parent.models.businesses.push(new BusinessModel(business))
     }
+    this.buildInfoWindows()
     this.clearMarkers()
     this.setBusinessMarkers()
+    this.setMarkerListeners()
+  },
+
+  buildInfoWindows: function() {
+    var businesses = this.parent.models.businesses
+    var businessCount = businesses.length
+    for(var i=0; i<businessCount; i++) {
+      var business = businesses[i]
+      this.infoWindows.push(new google.maps.InfoWindow({
+      content: business.name,
+      yelpId: business.yelp_id
+      }))
+    }
   },
 
   clearMarkers: function() {
@@ -44,7 +122,7 @@ MapController.prototype = {
       marker.setMap(null)
     }
 
-    markers = null
+    markers = []
   },
 
   setBusinessMarkers: function() {
@@ -60,7 +138,8 @@ MapController.prototype = {
     var marker = new google.maps.Marker({
         position: {lat: businessModel.latitude, lng: businessModel.longitude},
         map: this.map,
-        title: businessModel.name
+        title: businessModel.name,
+        yelpId: businessModel.yelp_id
     })
     this.markers.push(marker)
   }

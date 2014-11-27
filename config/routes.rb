@@ -4,6 +4,8 @@ Rails.application.routes.draw do
 
   root 'home#index'
   get 'coords_search', to: 'home#coords_search'
+  get 'bounds_search', to: 'home#bounds_search'
+
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
