@@ -14,5 +14,6 @@ class Business
     @country = location.fetch('country_code', nil) if location
     @latitude = location['coordinate']['latitude'] if location && location['coordinate']
     @longitude = location['coordinate']['longitude'] if location && location['coordinate']
+    @categories = args.fetch('categories', []).map{|category_arr| category_arr[0]}
   end
 end
