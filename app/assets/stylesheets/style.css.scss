@@ -1,4 +1,11 @@
 body {
+  a {
+    color: blue;
+    text-decoration: none;
+    &:hover {
+      color: red;
+    }
+  }
   margin: 0;
   .container {
     width: 100%;
@@ -18,9 +25,7 @@ body {
 
       }
       .review-count {
-        a {
-          color: blue;
-        }
+
       }
     }
   }

@@ -1,5 +1,7 @@
 <div class = 'info-window' id='{{yelp_id}}'>
-  <div class='business-name'>{{name}}</div>
+  <div class='business-name'>
+    <a target='_blank' href='{{googleMapsQuery}}'>{{name}}</a>
+  </div>
   {{#if price_range}}
     <div class='price-range'>{{price_range}}</div>
   {{/if}}
