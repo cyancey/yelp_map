@@ -24,11 +24,11 @@ ApplicationController.prototype = {
     //handle location error
   },
 
-  selectByAttributeId: function(array, attribute, id) {
+  selectByAttributeId: function(array, attributeType, attribute) {
     var arrayLength = array.length
     var results = []
     for(var i=0; i<arrayLength; i++) {
-      if (array[i][attribute] === id) {
+      if (array[i][attributeType] === attribute) {
         results.push(array[i])
       }
     }

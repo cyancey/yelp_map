@@ -4,4 +4,6 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   require 'yelp_api'
   require 'business_factory'
+  require 'nokogiri'
+  require 'open-uri'
 end

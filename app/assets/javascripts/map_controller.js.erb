@@ -18,8 +18,8 @@ MapController.prototype = {
   },
 
   setListeners: function() {
-    $('#map-canvas').on('markerClicked', this.buildAndShowInfoWindow.bind(this))
-    $('#map-canvas').on('markerHover', this.buildAndShowInfoWindow.bind(this))
+    $('#map-canvas').on('markerClicked, markerHover', this.buildAndShowInfoWindow.bind(this))
+    $('#map-canvas').on('markerClicked, markerHover', this.getAdditionalYelpInfo.bind(this))
     $('#refresh-results').on('click', this.refreshResultsByMapBounds.bind(this))
     google.maps.event.addListener(this.map, 'click', this.closeAllInfoWindows.bind(this))
     // $('#map-canvas').on('markerLeaveHover', this.buildAndShowInfoWindow.bind(this))
@@ -47,12 +47,46 @@ MapController.prototype = {
     var yelpId = marker.yelpId,
         business = this.parent.findByAttribute(this.parent.models.businesses, 'yelp_id', yelpId)
     var infoWindow = new google.maps.InfoWindow({
-      content: HandlebarsTemplates['infowindow'](business)
+      content: HandlebarsTemplates['infowindow'](business),
+      yelpId: yelpId
     })
 
     this.infoWindows.push(infoWindow)
     this.closeAllInfoWindows()
     infoWindow.open(this.map, marker)
+    // this.getAdditionalYelpInfo(business)
+  },
+
+  getAdditionalYelpInfo: function(e, marker) {
+    var yelpId = marker.yelpId,
+    business = this.parent.findByAttribute(this.parent.models.businesses, 'yelp_id', yelpId)
+
+    if(!business.additional_yelp_info_obtained) {
+      var ajaxRequest = $.ajax({
+      url: '/additional_yelp_details',
+      type: 'GET',
+      data: {yelp_page_url: business.yelp_page_url}
+      })
+
+      ajaxRequest.done(function(additionalAttributes) {
+        for(var attribute in additionalAttributes) {
+          var value = additionalAttributes[attribute]
+          business[attribute] = value
+        }
+        this.updateInfoWindow(business)
+      }.bind(this))
+    }
+
+    business.additional_yelp_info_obtained = true
+  },
+
+  updateInfoWindow: function(business) {
+    var infoWindowResults = this.parent.selectByAttributeId(this.infoWindows, 'yelpId', business.yelp_id),
+        infoWindow = infoWindowResults[infoWindowResults.length-1]
+
+    var infoWindowContent = HandlebarsTemplates['infowindow'](business)
+    infoWindow.setContent(infoWindowContent)
+
   },
 
   closeAllInfoWindows: function(e, marker) {
