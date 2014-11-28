@@ -92,7 +92,7 @@ MapController.prototype = {
     position: coords,
     clickable: false,
     map: this.map,
-    icon: 'assets/blue-dot.png'
+    icon: '<%= asset_path("blue-dot.png") %>'
   });
 
     ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
