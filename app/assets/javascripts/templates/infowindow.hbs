@@ -3,7 +3,11 @@
   <img src='{{rating_image_url}}'></img>
   <div class='review-count'>
     <a target='_blank' href='{{yelp_page_url}}'>
-      {{yelp_review_count}} reviews
+      {{#if oneReview}}
+        {{yelp_review_count}} review
+      {{else}}
+        {{yelp_review_count}} reviews
+      {{/if}}
     </a>
   </div>
   <div class='business-categories'>

@@ -6,5 +6,11 @@ function BusinessModel(args) {
 }
 
 BusinessModel.prototype = {
-
+  oneReview: function() {
+    if(this.yelp_review_count === 1) {
+      return true
+    } else {
+      return false
+    }
+  }
 }

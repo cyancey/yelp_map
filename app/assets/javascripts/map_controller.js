@@ -3,6 +3,8 @@ function MapController(applicationController) {
   this.parent = applicationController
   this.markers = []
   this.infoWindows = []
+  this.searchType = 'restaurant'
+  this.positionMarker = null
 }
 
 MapController.prototype = {
@@ -85,6 +87,13 @@ MapController.prototype = {
       type: 'GET',
       data: coords
     })
+
+  this.positionMarker = new google.maps.Marker({
+    position: coords,
+    clickable: false,
+    map: this.map,
+    icon: 'assets/blue-dot.png'
+  });
 
     ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
   },
