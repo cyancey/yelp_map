@@ -3,7 +3,7 @@ function MapController(applicationController) {
   this.parent = applicationController
   this.markers = []
   this.infoWindows = []
-  this.searchType = 'restaurant'
+  this.searchType = 'restaurants'
   this.positionMarker = null
 }
 
@@ -22,22 +22,41 @@ MapController.prototype = {
     $('#map-canvas').on('markerClicked, markerHover', this.getAdditionalYelpInfo.bind(this))
     $('#refresh-results').on('click', this.refreshResultsByMapBounds.bind(this))
     google.maps.event.addListener(this.map, 'click', this.closeAllInfoWindows.bind(this))
+    $('#coffee-search').on('click', this.coffeeSearch.bind(this))
+    $('#bars-search').on('click', this.barsSearch.bind(this))
+    $('#restaurants-search').on('click', this.restaurantsSearch.bind(this))
     // $('#map-canvas').on('markerLeaveHover', this.buildAndShowInfoWindow.bind(this))
+  },
+
+  restaurantsSearch: function() {
+    this.searchType = 'restaurants'
+    this.refreshResultsByMapBounds()
+  },
+
+  barsSearch: function() {
+    this.searchType = 'bars'
+    this.refreshResultsByMapBounds()
+  },
+
+  coffeeSearch: function() {
+    this.searchType = 'coffee'
+    this.refreshResultsByMapBounds()
   },
 
   refreshResultsByMapBounds: function() {
     var bounds = this.map.getBounds()
-    var boundingBox = {
+    var searchParams = {
       sw_latitude: bounds.getSouthWest().k,
       sw_longitude: bounds.getSouthWest().B,
       ne_latitude: bounds.getNorthEast().k,
-      ne_longitude: bounds.getNorthEast().B
+      ne_longitude: bounds.getNorthEast().B,
+      search_type: this.searchType
     }
 
     var ajaxRequest = $.ajax({
       url: '/bounds_search',
       type: 'GET',
-      data: boundingBox
+      data: searchParams
     })
 
     ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
@@ -137,25 +156,14 @@ MapController.prototype = {
     var businessCount = businesses.length
     for(var i=0; i<businessCount; i++) {
       var business = businesses[i]
-      this.parent.models.businesses.push(new BusinessModel(business))
+      if(!business.permenantly_closed) {
+        this.parent.models.businesses.push(new BusinessModel(business))
+      }
     }
-    // this.buildInfoWindows()
     this.clearMarkers()
     this.setBusinessMarkers()
     this.setMarkerListeners()
   },
-
-  // buildInfoWindows: function() {
-  //   var businesses = this.parent.models.businesses
-  //   var businessCount = businesses.length
-  //   for(var i=0; i<businessCount; i++) {
-  //     var business = businesses[i]
-  //     this.infoWindows.push(new google.maps.InfoWindow({
-  //     content: HandlebarsTemplates['infowindow'](business),
-  //     yelpId: business.yelp_id
-  //     }))
-  //   }
-  // },
 
   clearMarkers: function() {
     var markers = this.markers,
@@ -165,7 +173,6 @@ MapController.prototype = {
       var marker = markers[i]
       marker.setMap(null)
     }
-
     markers = []
   },
 
@@ -187,5 +194,4 @@ MapController.prototype = {
     })
     this.markers.push(marker)
   }
-
 }

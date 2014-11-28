@@ -35,9 +35,25 @@ module YelpAPI
     puts 'Bounding Box Coordinates'
     p bounding_box
     puts 'Search Params'
+    search_params = build_search_params(search_params.delete('search_type'))
     p search_params
     results = JSON.parse(Yelp.client.search_by_bounding_box(bounding_box, search_params).to_json)
     {region: results.fetch('region', nil),
      businesses: results.fetch('businesses', nil)}
+  end
+
+  private
+
+  def build_search_params(search_type)
+    puts search_type
+    if search_type == 'restaurants'
+      {term: 'restaurants'}
+    elsif search_type == 'coffee'
+      {term: 'coffee',
+       categories: 'coffee'}
+    elsif search_type == 'bars'
+      {term: 'bars',
+       categories: 'bars'}
+    end
   end
 end
