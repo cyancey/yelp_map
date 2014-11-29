@@ -15,32 +15,54 @@ MapController.prototype = {
         };
     this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     this.setListeners()
+    this.spinRefreshIcon()
   },
 
   setListeners: function() {
     $('#map-canvas').on('markerClicked, markerHover', this.buildAndShowInfoWindow.bind(this))
     $('#map-canvas').on('markerClicked, markerHover', this.getAdditionalYelpInfo.bind(this))
     $('#refresh-results').on('click', this.refreshResultsByMapBounds.bind(this))
-    google.maps.event.addListener(this.map, 'click', this.closeAllInfoWindows.bind(this))
+    google.maps.event.addListener(this.map, 'click', this.closeAllInfoWindowsAndSearchOptions.bind(this))
     $('#coffee-search').on('click', this.coffeeSearch.bind(this))
     $('#bars-search').on('click', this.barsSearch.bind(this))
     $('#restaurants-search').on('click', this.restaurantsSearch.bind(this))
+    $('#current-search-type').on('click', this.toggleSearchOptions.bind(this))
     // $('#map-canvas').on('markerLeaveHover', this.buildAndShowInfoWindow.bind(this))
+  },
+
+  showCurrentSearchType: function() {
+    $('#current-search-type img').addClass('hidden')
+    $('#'+this.searchType+'-current-search').removeClass('hidden')
+  },
+
+  toggleSearchOptions: function() {
+    var $searchOptions = $('ul.actions')
+    if($searchOptions.is(':visible')) {
+      $searchOptions.addClass('hidden')
+      this.showCurrentSearchType()
+    } else {
+      $searchOptions.removeClass('hidden')
+      $('#current-search-type img').addClass('hidden')
+      $('#search-options-open').removeClass('hidden')
+    }
   },
 
   restaurantsSearch: function() {
     this.searchType = 'restaurants'
     this.refreshResultsByMapBounds()
+    this.toggleSearchOptions()
   },
 
   barsSearch: function() {
     this.searchType = 'bars'
     this.refreshResultsByMapBounds()
+    this.toggleSearchOptions()
   },
 
   coffeeSearch: function() {
     this.searchType = 'coffee'
     this.refreshResultsByMapBounds()
+    this.toggleSearchOptions()
   },
 
   refreshResultsByMapBounds: function() {
@@ -52,6 +74,7 @@ MapController.prototype = {
       ne_longitude: bounds.getNorthEast().B,
       search_type: this.searchType
     }
+    this.spinRefreshIcon()
 
     var ajaxRequest = $.ajax({
       url: '/bounds_search',
@@ -82,9 +105,9 @@ MapController.prototype = {
 
     if(!business.additional_yelp_info_obtained) {
       var ajaxRequest = $.ajax({
-      url: '/additional_yelp_details',
-      type: 'GET',
-      data: {yelp_page_url: business.yelp_page_url}
+        url: '/additional_yelp_details',
+        type: 'GET',
+        data: {yelp_page_url: business.yelp_page_url}
       })
 
       ajaxRequest.done(function(additionalAttributes) {
@@ -108,11 +131,13 @@ MapController.prototype = {
 
   },
 
-  closeAllInfoWindows: function(e, marker) {
+  closeAllInfoWindowsAndSearchOptions: function(e, marker) {
     var infoWindowCount = this.infoWindows.length
     for (var i=0; i<infoWindowCount; i++) {
       this.infoWindows[i].close()
     }
+    $('ul.actions').addClass('hidden')
+    this.showCurrentSearchType()
   },
 
   setMarkerListeners: function() {
@@ -151,6 +176,14 @@ MapController.prototype = {
     ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
   },
 
+  spinRefreshIcon: function() {
+    $('#refresh-results').addClass('spin')
+  },
+
+  stopSpinRefreshIcon: function() {
+    $('#refresh-results').removeClass('spin')
+  },
+
   buildModelsSetMarkers: function(businesses) {
     this.parent.models.businesses = []
     var businessCount = businesses.length
@@ -163,6 +196,7 @@ MapController.prototype = {
     this.clearMarkers()
     this.setBusinessMarkers()
     this.setMarkerListeners()
+    this.stopSpinRefreshIcon()
   },
 
   clearMarkers: function() {
