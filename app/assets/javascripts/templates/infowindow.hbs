@@ -6,7 +6,9 @@
     <div class='price-range'>{{price_range}}</div>
   {{/if}}
   {{#if todays_hours}}
-    <div class='todays-hours'>{{todays_hours}}</div>
+    {{#each todays_hours}}
+      <div class='todays-hours'>{{hours_text}}</div>
+    {{/each}}
   {{/if}}
   <img src='{{rating_image_url}}'></img>
   <div class='review-count'>
