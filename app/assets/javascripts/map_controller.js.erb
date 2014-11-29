@@ -94,7 +94,7 @@ MapController.prototype = {
     })
 
     this.infoWindows.push(infoWindow)
-    this.closeAllInfoWindows()
+    this.closeAllInfoWindowsAndSearchOptions()
     infoWindow.open(this.map, marker)
     // this.getAdditionalYelpInfo(business)
   },
