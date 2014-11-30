@@ -16,7 +16,7 @@ ApplicationController.prototype = {
   },
 
   obtainResultsSetMap: function(position) {
-    coords = {lat: position.coords.latitude, lng: position.coords.longitude}
+    var coords = {lat: position.coords.latitude, lng: position.coords.longitude}
     this.mapController.updateMap(coords)
   },
 

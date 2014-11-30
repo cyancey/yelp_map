@@ -5,13 +5,18 @@ function MapController(applicationController) {
   this.infoWindows = []
   this.searchType = 'restaurants'
   this.positionMarker = null
+  this.gpsActive = false
+  this.gpsWatchId = null
 }
 
 MapController.prototype = {
   init: function() {
     var mapOptions = {
           center: { lat: 40.183988, lng: -95.726231},
-          zoom: 4
+          zoom: 4,
+          zoomControl: false,
+          panControl: false,
+          mapTypeControl: false
         };
     this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     this.setListeners()
@@ -27,11 +32,36 @@ MapController.prototype = {
     $('#bars-search').on('click', this.barsSearch.bind(this))
     $('#restaurants-search').on('click', this.restaurantsSearch.bind(this))
     $('#current-search-type').on('click', this.toggleSearchOptions.bind(this))
+    $('#gps-toggle').on('click', this.centerMapOnPositionMarker.bind(this))
+    // $('#gps-toggle').on('click', this.toggleGpsActive.bind(this))
+  },
+
+  centerMapOnPositionMarker: function() {
+    var coords = {
+      lat: this.positionMarker.position.k,
+      lng: this.positionMarker.position.B
+    }
+    // debugger
+    this.map.panTo(coords)
   },
 
   showCurrentSearchType: function() {
     $('#current-search-type img').addClass('hidden')
     $('#'+this.searchType+'-current-search').removeClass('hidden')
+  },
+
+  toggleGpsActive: function() {
+    var $gpsActive = $('#gps-active'),
+        $gpsInactive = $('#gps-inactive')
+    if($gpsActive.is(':visible')) {
+      this.gpsActive = false
+      $gpsActive.addClass('hidden')
+      $gpsInactive.removeClass('hidden')
+    } else {
+      this.gpsActive = true
+      $gpsActive.removeClass('hidden')
+      $gpsInactive.addClass('hidden')
+    }
   },
 
   toggleSearchOptions: function() {
@@ -74,6 +104,7 @@ MapController.prototype = {
       search_type: this.searchType
     }
     this.spinRefreshIcon()
+    // this.updatePositionMarkerWithCurrentLocation()
 
     var ajaxRequest = $.ajax({
       url: '/bounds_search',
@@ -95,7 +126,6 @@ MapController.prototype = {
     this.infoWindows.push(infoWindow)
     this.closeAllInfoWindowsAndSearchOptions()
     infoWindow.open(this.map, marker)
-    // this.getAdditionalYelpInfo(business)
   },
 
   getAdditionalYelpInfo: function(e, marker) {
@@ -165,14 +195,41 @@ MapController.prototype = {
       data: coords
     })
 
-  this.positionMarker = new google.maps.Marker({
-    position: coords,
-    clickable: false,
-    map: this.map,
-    icon: '<%= asset_path("blue-dot.png") %>'
-  });
+    this.setPositionMarker(coords)
+    this.followUserPosition()
 
     ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
+  },
+
+  updatePositionMarkerWithCurrentLocation: function() {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var coords = {lat: position.coords.latitude, lng: position.coords.longitude}
+        this.setPositionMarker(coords)
+    }.bind(this), this.parent.locationError.bind(this.parent),{enableHighAccuracy: true})
+  },
+
+  followUserPosition: function() {
+    this.gpsWatchId = navigator.geolocation.watchPosition(function(position) {
+      var coords = {lat: position.coords.latitude, lng: position.coords.longitude}
+      this.setPositionMarker(coords)
+    }.bind(this), this.parent.locationError.bind(this.parent),{enableHighAccuracy: true})
+  },
+
+  stopFollowingUserPosition: function() {
+    navigator.geolocation.clearWatch(this.gpsWatchId)
+  },
+
+  setPositionMarker: function(coords) {
+    if (this.positionMarker) {
+      this.positionMarker.setMap(null)
+      this.positionMarker = null
+    }
+    this.positionMarker = new google.maps.Marker({
+      position: coords,
+      clickable: false,
+      map: this.map,
+      icon: '<%= asset_path("blue-dot.png") %>'
+    });
   },
 
   spinRefreshIcon: function() {
