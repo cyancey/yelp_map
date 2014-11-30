@@ -32,8 +32,8 @@ MapController.prototype = {
     $('#bars-search').on('click', this.barsSearch.bind(this))
     $('#restaurants-search').on('click', this.restaurantsSearch.bind(this))
     $('#current-search-type').on('click', this.toggleSearchOptions.bind(this))
-    $('#gps-toggle').on('click', this.centerMapOnPositionMarker.bind(this))
-    // $('#gps-toggle').on('click', this.toggleGpsActive.bind(this))
+    // $('#gps-toggle').on('click', this.centerMapOnPositionMarker.bind(this))
+    $('#gps-toggle').on('click', this.toggleGpsActive.bind(this))
   },
 
   centerMapOnPositionMarker: function() {
@@ -57,10 +57,13 @@ MapController.prototype = {
       this.gpsActive = false
       $gpsActive.addClass('hidden')
       $gpsInactive.removeClass('hidden')
+      this.stopFollowingUserPosition()
     } else {
       this.gpsActive = true
       $gpsActive.removeClass('hidden')
       $gpsInactive.addClass('hidden')
+      this.followUserPosition()
+      this.centerMapOnPositionMarker()
     }
   },
 
@@ -196,7 +199,6 @@ MapController.prototype = {
     })
 
     this.setPositionMarker(coords)
-    this.followUserPosition()
 
     ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
   },
