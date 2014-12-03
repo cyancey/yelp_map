@@ -62,8 +62,15 @@ MapController.prototype = {
       this.gpsActive = true
       $gpsActive.removeClass('hidden')
       $gpsInactive.addClass('hidden')
-      this.followUserPosition()
-      this.centerMapOnPositionMarker()
+
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var coords = {lat: position.coords.latitude, lng: position.coords.longitude}
+        this.setPositionMarker(coords)
+        this.map.panTo(coords)
+        this.followUserPosition()
+      }.bind(this),
+      this.parent.locationError.bind(this.parent),
+      {enableHighAccuracy: true})
     }
   },
 
