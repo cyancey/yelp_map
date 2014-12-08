@@ -4,6 +4,7 @@ function MapController(applicationController) {
   this.markers = []
   this.infoWindows = []
   this.searchType = 'restaurants'
+  this.customSearchTerm = null
   this.positionMarker = null
   this.gpsActive = false
   this.gpsWatchId = null
@@ -16,7 +17,8 @@ MapController.prototype = {
           zoom: 4,
           zoomControl: false,
           panControl: false,
-          mapTypeControl: false
+          mapTypeControl: false,
+          streetViewControl: false
         };
     this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     this.setListeners()
@@ -34,6 +36,8 @@ MapController.prototype = {
     $('#current-search-type').on('click', this.toggleSearchOptions.bind(this))
     // $('#gps-toggle').on('click', this.centerMapOnPositionMarker.bind(this))
     $('#gps-toggle').on('click', this.toggleGpsActive.bind(this))
+    $('form#custom-search-form').on('submit', this.customSearchFormSubmitted.bind(this))
+    $('#custom-search-toggle').on('click', this.toggleCustomSearch.bind(this))
   },
 
   centerMapOnPositionMarker: function() {
@@ -86,22 +90,87 @@ MapController.prototype = {
     }
   },
 
+  toggleCustomSearch: function() {
+    var $searchFormContainer = $('#search-form-container')
+    if($searchFormContainer.is(':visible')) {
+      this.hideCustomSearch()
+    } else {
+      $searchFormContainer.removeClass('hidden')
+      $searchFormContainer.find('input#term').attr('placeholder', this.customSearchTerm)
+      $('#show-custom-search').addClass('hidden')
+      $('#cancel-custom-search').removeClass('hidden')
+    }
+  },
+
+  hideCustomSearch: function() {
+    var $searchFormContainer = $('#search-form-container')
+    $searchFormContainer.addClass('hidden')
+    $('#show-custom-search').removeClass('hidden')
+    $('#cancel-custom-search').addClass('hidden')
+    this.clearSearchForm()
+  },
+
+  customSearchFormSubmitted: function(e) {
+    e.preventDefault()
+    var $form = $('#custom-search-form')
+    this.searchType = 'custom'
+    this.customSearchTerm = $form.find('#term').val()
+    this.customSearch()
+  },
+
+  customSearch: function() {
+    var $form = $('#custom-search-form')
+    this.spinRefreshIcon()
+
+    var bounds = this.map.getBounds()
+
+    var searchParams = {
+      sw_latitude: bounds.getSouthWest().k,
+      sw_longitude: bounds.getSouthWest().B,
+      ne_latitude: bounds.getNorthEast().k,
+      ne_longitude: bounds.getNorthEast().B,
+      search_type: this.searchType,
+      term: this.customSearchTerm
+    }
+    var ajaxRequest = $.ajax({
+      url: $form.attr('action'),
+      method: 'GET',
+      data: searchParams
+    })
+
+    ajaxRequest.success(function(businesses) {
+      this.buildModelsSetMarkers(businesses)
+      this.hideCustomSearch()
+      this.showCurrentSearchType()
+      $('ul.actions').addClass('hidden')
+    }.bind(this))
+
+  },
+
+  clearSearchForm: function() {
+    var $form = $('#custom-search-form')
+    $form.find('#term').val('')
+  },
+
   restaurantsSearch: function() {
     this.searchType = 'restaurants'
     this.refreshResultsByMapBounds()
     this.toggleSearchOptions()
+    this.customSearchTerm = null
   },
 
   barsSearch: function() {
     this.searchType = 'bars'
     this.refreshResultsByMapBounds()
     this.toggleSearchOptions()
+    this.customSearchTerm = null
   },
 
   coffeeSearch: function() {
     this.searchType = 'coffee'
     this.refreshResultsByMapBounds()
     this.toggleSearchOptions()
+    this.customSearchTerm = null
   },
 
   refreshResultsByMapBounds: function() {
@@ -116,13 +185,18 @@ MapController.prototype = {
     this.spinRefreshIcon()
     // this.updatePositionMarkerWithCurrentLocation()
 
-    var ajaxRequest = $.ajax({
-      url: '/bounds_search',
-      type: 'GET',
-      data: searchParams
-    })
+    if (this.searchType === 'custom') {
+      this.customSearch()
+    } else {
+      var ajaxRequest = $.ajax({
+        url: '/bounds_search',
+        type: 'GET',
+        data: searchParams
+      })
 
-    ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
+      ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
+    }
+
   },
 
   buildAndShowInfoWindow: function(e, marker) {
@@ -177,6 +251,7 @@ MapController.prototype = {
     }
     $('ul.actions').addClass('hidden')
     this.showCurrentSearchType()
+    this.hideCustomSearch()
   },
 
   setMarkerListeners: function() {

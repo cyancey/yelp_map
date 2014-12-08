@@ -1,9 +1,7 @@
 module YelpAPI
   extend self
   DEFAULT_SEARCH_OPTIONS = {
-    location: 'San Francisco',
-    term: 'restaurants',
-    sort_mode: 2, #highest rated
+    sort_mode: 2 #highest rated
   }
 
   def search_by_location_name(args = {})
@@ -24,12 +22,23 @@ module YelpAPI
      businesses: results.fetch('businesses', nil)}
   end
 
+  def custom_search(args = {})
+    search_params = DEFAULT_SEARCH_OPTIONS.reject{|k,v| k==:location}.merge(args)
+    bounding_box = extract_bounding_box(search_params)
+
+    search_params = {term: search_params.delete('term')}
+
+    p bounding_box
+    p search_params
+
+    results = JSON.parse(Yelp.client.search_by_bounding_box(bounding_box, search_params).to_json)
+    {region: results.fetch('region', nil),
+     businesses: results.fetch('businesses', nil)}
+  end
+
   def search_by_bounds(args = {})
     search_params = DEFAULT_SEARCH_OPTIONS.reject{|k,v| k==:location}.merge(args)
-    bounding_box = {sw_latitude: search_params.delete("sw_latitude"),
-      sw_longitude: search_params.delete("sw_longitude"),
-      ne_latitude: search_params.delete("ne_latitude"),
-      ne_longitude: search_params.delete("ne_longitude")}
+    bounding_box = extract_bounding_box(search_params)
     puts 'Bounding Box Coordinates'
     p bounding_box
     puts 'Search Params'
@@ -53,5 +62,12 @@ module YelpAPI
       {term: 'bars',
        categories: 'bars'}
     end
+  end
+
+  def extract_bounding_box(search_params)
+    {sw_latitude: search_params.delete("sw_latitude"),
+      sw_longitude: search_params.delete("sw_longitude"),
+      ne_latitude: search_params.delete("ne_latitude"),
+      ne_longitude: search_params.delete("ne_longitude")}
   end
 end

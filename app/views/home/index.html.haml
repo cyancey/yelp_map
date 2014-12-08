@@ -2,11 +2,22 @@
   #map-canvas
   = image_tag 'yelp_logo.png', id: 'yelp-logo'
   = image_tag 'refresh.png', id: 'refresh-results'
+  #custom-search
+    #custom-search-toggle
+      = image_tag 'search-icon.png', id: 'show-custom-search'
+      = image_tag 'cancel-icon.png', id: 'cancel-custom-search', class: 'hidden'
+    #search-form-container.hidden
+      #form-table-cell
+        = form_tag '/custom_search', id: 'custom-search-form', method: 'GET' do
+          = text_field_tag :term
+          -# = submit_tag 'Search'
+
   #current-search-type
-    = image_tag 'black-circle.png', id: 'search-options-open', class: 'hidden'
+    = image_tag 'cancel-icon.png', id: 'search-options-open', class: 'hidden'
     = image_tag 'coffee.png', id: 'coffee-current-search', class: 'hidden'
     = image_tag 'beer.png', id: 'bars-current-search', class: 'hidden'
     = image_tag 'restaurant.png', id: 'restaurants-current-search'
+    = image_tag 'search-icon.png', id: 'custom-current-search', class: 'hidden'
   %ul.actions.hidden
     %li
       = image_tag 'coffee.png', id: 'coffee-search'

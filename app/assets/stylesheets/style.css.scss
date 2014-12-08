@@ -17,6 +17,42 @@ body {
       width: 100%;
       height: 100%;
     }
+    #custom-search {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      height: 50px;
+      #custom-search-toggle {
+        height: 100%;
+        display: inline-block;
+        img {
+          height: 100%;
+          &:hover {
+            cursor: pointer;
+          }
+        }
+      }
+      #search-form-container {
+        display: inline-block;
+        height: 100%;
+        vertical-align: top;
+        &.hidden {
+          display: none;
+        }
+        #form-table-cell {
+          display: table-cell;
+          height: 50px;
+          vertical-align: middle;
+          #custom-search-form {
+            position: relative;
+            input#term {
+              font-size: 1.5em;
+              max-width: 60vw;
+            }
+          }
+        }
+      }
+    }
     #yelp-logo {
       position: absolute;
       top: 10px;

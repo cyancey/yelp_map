@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   get 'coords_search', to: 'home#coords_search'
   get 'bounds_search', to: 'home#bounds_search'
   get 'additional_yelp_details', to: 'home#additional_yelp_details'
+  get 'custom_search', to: 'home#custom_search'
 
 
   # You can have the root of your site routed with "root"
