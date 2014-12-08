@@ -208,7 +208,8 @@ MapController.prototype = {
     })
 
     this.infoWindows.push(infoWindow)
-    this.closeAllInfoWindowsAndSearchOptions()
+    this.closeAllInfoWindows()
+    // this.closeAllInfoWindowsAndSearchOptions()
     infoWindow.open(this.map, marker)
   },
 
@@ -244,11 +245,19 @@ MapController.prototype = {
 
   },
 
-  closeAllInfoWindowsAndSearchOptions: function(e, marker) {
+  closeAllInfoWindows: function() {
     var infoWindowCount = this.infoWindows.length
     for (var i=0; i<infoWindowCount; i++) {
       this.infoWindows[i].close()
     }
+  },
+
+  closeAllInfoWindowsAndSearchOptions: function(e, marker) {
+    // var infoWindowCount = this.infoWindows.length
+    // for (var i=0; i<infoWindowCount; i++) {
+    //   this.infoWindows[i].close()
+    // }
+    this.closeAllInfoWindows()
     $('ul.actions').addClass('hidden')
     this.showCurrentSearchType()
     this.hideCustomSearch()
