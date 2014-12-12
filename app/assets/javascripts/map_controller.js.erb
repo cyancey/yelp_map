@@ -42,8 +42,8 @@ MapController.prototype = {
 
   centerMapOnPositionMarker: function() {
     var coords = {
-      lat: this.positionMarker.position.k,
-      lng: this.positionMarker.position.B
+      lat: this.positionMarker.position.lat(),
+      lng: this.positionMarker.position.lng()
     }
     // debugger
     this.map.panTo(coords)
@@ -125,10 +125,10 @@ MapController.prototype = {
     var bounds = this.map.getBounds()
 
     var searchParams = {
-      sw_latitude: bounds.getSouthWest().k,
-      sw_longitude: bounds.getSouthWest().B,
-      ne_latitude: bounds.getNorthEast().k,
-      ne_longitude: bounds.getNorthEast().B,
+      sw_latitude: bounds.getSouthWest().lat(),
+      sw_longitude: bounds.getSouthWest().lng(),
+      ne_latitude: bounds.getNorthEast().lat(),
+      ne_longitude: bounds.getNorthEast().lng(),
       search_type: this.searchType,
       term: this.customSearchTerm
     }
