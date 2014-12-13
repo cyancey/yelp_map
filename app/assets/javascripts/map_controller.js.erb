@@ -283,15 +283,15 @@ MapController.prototype = {
   updateMap: function(coords) {
     this.map.panTo(coords)
     this.map.setZoom(15)
-    // var ajaxRequest = $.ajax({
-    //   url: '/coords_search',
-    //   type: 'GET',
-    //   data: coords
-    // })
-    this.refreshResultsByMapBounds()
+    var ajaxRequest = $.ajax({
+      url: '/coords_search',
+      type: 'GET',
+      data: coords
+    })
+    // this.refreshResultsByMapBounds()
     this.setPositionMarker(coords)
 
-    // ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
+    ajaxRequest.done(this.buildModelsSetMarkers.bind(this))
   },
 
   updatePositionMarkerWithCurrentLocation: function() {
