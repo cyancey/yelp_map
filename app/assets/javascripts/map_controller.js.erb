@@ -91,12 +91,14 @@ MapController.prototype = {
   },
 
   toggleCustomSearch: function() {
-    var $searchFormContainer = $('#search-form-container')
+    var $searchFormContainer = $('#search-form-container'),
+        $customSearchInput = $searchFormContainer.find('input#term')
     if($searchFormContainer.is(':visible')) {
       this.hideCustomSearch()
     } else {
       $searchFormContainer.removeClass('hidden')
-      $searchFormContainer.find('input#term').attr('placeholder', this.customSearchTerm)
+      $customSearchInput.attr('placeholder', this.customSearchTerm)
+      $customSearchInput.focus()
       $('#show-custom-search').addClass('hidden')
       $('#cancel-custom-search').removeClass('hidden')
     }
