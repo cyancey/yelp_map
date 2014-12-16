@@ -49,6 +49,9 @@ GEM
       sprockets (>= 2.0.3)
       tilt
     hike (1.2.3)
+    httparty (0.13.1)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
     i18n (0.6.11)
     jquery-rails (3.1.2)
       railties (>= 3.0, < 5.0)
@@ -61,6 +64,7 @@ GEM
     mini_portile (0.5.3)
     minitest (5.4.3)
     multi_json (1.10.1)
+    multi_xml (0.5.5)
     multipart-post (1.2.0)
     newrelic_rpm (3.8.1.221)
     nokogiri (1.6.1)
@@ -132,6 +136,7 @@ DEPENDENCIES
   dotenv-rails
   haml
   handlebars_assets
+  httparty
   jquery-rails
   newrelic_rpm
   nokogiri

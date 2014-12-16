@@ -5,6 +5,11 @@
   {{#if price_range}}
     <div class='price-range'>{{price_range}}</div>
   {{/if}}
+  {{#if website}}
+    <div class='website'>
+      <a target='_blank' href='{{website}}'>{{website}}</a>
+    </div>
+  {{/if}}
   {{#if todays_hours}}
     {{#each todays_hours}}
       <div class='todays-hours'>{{hours_text}}</div>

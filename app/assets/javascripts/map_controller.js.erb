@@ -28,6 +28,7 @@ MapController.prototype = {
   setListeners: function() {
     $('#map-canvas').on('markerClicked, markerHover', this.buildAndShowInfoWindow.bind(this))
     $('#map-canvas').on('markerClicked, markerHover', this.getAdditionalYelpInfo.bind(this))
+    $('#map-canvas').on('markerClicked, markerHover', this.getLocuDetails.bind(this))
     $('#refresh-results').on('click', this.refreshResultsByMapBounds.bind(this))
     google.maps.event.addListener(this.map, 'click', this.closeAllInfoWindowsAndSearchOptions.bind(this))
     $('#coffee-search').on('click', this.coffeeSearch.bind(this))
@@ -38,6 +39,35 @@ MapController.prototype = {
     $('#gps-toggle').on('click', this.toggleGpsActive.bind(this))
     $('form#custom-search-form').on('submit', this.customSearchFormSubmitted.bind(this))
     $('#custom-search-toggle').on('click', this.toggleCustomSearch.bind(this))
+  },
+
+  getLocuDetails: function(e, marker) {
+    var yelpId = marker.yelpId,
+    business = this.parent.findByAttribute(this.parent.models.businesses, 'yelp_id', yelpId)
+
+    if(!business.locu_details_obtained) {
+      var ajaxRequest = $.ajax({
+        url: '/locu_details',
+        type: 'GET',
+        data: {name: business.name,
+               lat: business.latitude,
+               lng: business.longitude}
+      })
+
+      ajaxRequest.success(function(additionalAttributes) {
+        for(var attribute in additionalAttributes) {
+          var value = additionalAttributes[attribute]
+          business[attribute] = value
+        }
+        this.updateInfoWindow(business)
+      }.bind(this))
+
+      ajaxRequest.error(function() {
+        //do something with error?
+      })
+    }
+
+    business.locu_details_obtained = true
   },
 
   centerMapOnPositionMarker: function() {

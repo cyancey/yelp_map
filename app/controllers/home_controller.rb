@@ -35,6 +35,13 @@ class HomeController < ApplicationController
                   todays_hours: todays_hours}
   end
 
+  def locu_details
+    p params
+    results = LocuAPI.venue_search(params)
+    render json: {website: results['website_url'],
+                  locu_id: results['locu_id']}
+  end
+
   private
 
   def parse_todays_hours(yelp_page)
