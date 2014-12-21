@@ -14,7 +14,7 @@ module LocuAPI
 
     response = HTTParty.post('https://api.locu.com/v2/venue/search/',
                              body: {api_key: ENV['LOCU_API_KEY'],
-                                    fields: ['website_url', 'name', 'external'],
+                                    fields: ['website_url', 'name', 'external', 'menu_url'],
                                     venue_queries: [search_query]}.to_json
 
     )

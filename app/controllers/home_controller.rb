@@ -38,8 +38,13 @@ class HomeController < ApplicationController
   def locu_details
     p params
     results = LocuAPI.venue_search(params)
-    render json: {website: results['website_url'],
-                  locu_id: results['locu_id']}
+    p results
+    if results
+      render json: {website: results['website_url'],
+                    locu_id: results['locu_id']}
+    else
+      render json: {}
+    end
   end
 
   private
